@@ -1,4 +1,4 @@
-# Iroha Wallet
+## Iroha tic-tac-toe Web UI
 
 
 [![npm version](https://img.shields.io/npm/v/iroha-helpers.svg)](https://www.npmjs.com/package/iroha-helpers)
@@ -6,33 +6,21 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
 
-Iroha Wallet is an example wallet application for [Iroha](http://iroha.readthedocs.io/).
-
-Iroha Wallet has following features:
-
-1. Login with your Iroha account.
-2. See your assets and transactions.
-3. Transfer your assets to another Iroha account.
-
-![iroha-wallet](https://user-images.githubusercontent.com/16295803/55154529-19085000-5166-11e9-9050-c79af6208ab5.png)
+This application is custom-made fork from the Iroha Wallet with very limited functionality whose purpose was to showcase some basic (but cool) feature of Iroha blockchain (read more about [Iroha](http://iroha.readthedocs.io/)).
 
 ## Getting Started
 
 ### Prerequisites
 
-First, you need to have an Iroha instance working. You can read how to launch it on [Iroha's docs](http://iroha.readthedocs.io/en/latest/getting_started/index.html). In this guide we assume the local Iroha instance working at `localhost:50051`.
+To run the UI we need a working Iroha instance. You can read how to launch it on [Iroha's docs](http://iroha.readthedocs.io/en/latest/getting_started/index.html). In this guide we assume a local Iroha instance listening on `localhost:50051`.
 
-Also we provide docker that you can easily run and use.
+The ```docker/docker-compose.yml``` file gives an idea of what other services need to be running.
 ```bash
 docker-compose -f docker/docker-compose.yaml up
 ```
 
-Then, populate the database by our example script as below. The script will create new account `alice@test` and several new assets. Note that there already exist `admin@test`. Their keys are in `scripts/`.
-Note that you need to complete "Installation" steps in advance if you want to use the example script.
+In order to start we need to set up the tic-tac-toe game backend first as described here https://github.com/soramitsu/tic-tac-toe-arbitrator-client/blob/master/README.md .
 
-```
- % node scripts/setup.js
-```
 
 ### Installation
 
@@ -43,7 +31,7 @@ Install npm packages.
 yarn install
 ```
 
-### Running
+### Run dev server
 
 To run application
 
