@@ -33,7 +33,7 @@ function initialState () {
     game: [],
     gameState: 0, // 0 - not started, 1 - in progress, 2 - you win, 3 - opponent wins, 4 - draw, 5 -error querying status
     isRewardClaimApproved: false,
-    isReady: true,
+    pending: false,
     error: '',
     statusMsg: '',
     symbol: 'X'
@@ -49,7 +49,7 @@ const getters = {
   getGameState: (state) => state.gameState,
   getIsRewardClaimApproved: (state) => state.isRewardClaimApproved,
   getIsInited: (state) => state.isInited,
-  getIsReady: (state) => state.isReady,
+  getPending: (state) => state.pending,
   getSymbol: (state) => state.symbol,
   getError: (state) => state.error,
   getStatusMessage: (state) => state.statusMsg
@@ -79,11 +79,11 @@ function updateGameState (state, gameState) {
   if (maxCombination === 3) {
     // you won
     state.gameStatus = 2
-    state.statusMsg = 'You win!!!'
+    state.statusMsg = 'You won!!!'
   } else if (minCombination === -3) {
     // opponent won
     state.gameStatus = 3
-    state.statusMsg = 'Your opponent wins'
+    state.statusMsg = 'Your opponent won'
   } else if (asNumbers.reduce((s, v) => s + Math.abs(v), 0) === 9) {
     // no more moves possible, hence draw
     state.gameStatus = 4
@@ -112,7 +112,7 @@ const mutations = {
     state.isInited = true
     state.gameState = 1
     state.game = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
-    state.symbol = 'X'
+    state.symbol = payload[state.accountId]['symbol']
     state.statusMsg = 'Game in progress'
   },
 
@@ -122,14 +122,14 @@ const mutations = {
 
   [types.MAKE_MOVE_REQUEST] (state, payload) {
     state.error = ''
-    state.isReady = false
+    state.pending = true
   },
 
   [types.MAKE_MOVE_SUCCESS] (state, payload) {
   },
 
   [types.MAKE_MOVE_FAILURE] (state, payload) {
-    state.isReady = true
+    state.pending = false
     handleError(state, payload)
   },
 
@@ -138,22 +138,21 @@ const mutations = {
   },
 
   [types.FETCH_GAME_SUCCESS] (state, payload) {
-    console.log(`Got reponse to fetchGame: ${payload}`)
-    updateGameState(state, payload)
-    if (state.gameState !== 1) {
-      state.isReady = false
+    updateGameState(state, payload[state.gameId]['state'])
+    if (state.gameState === 1) {
+      state.pending = false
     }
   },
 
   [types.FETCH_GAME_FAILURE] (state, payload) {
     handleError(state, payload)
     state.gameState = 5
-    state.isReady = false
+    state.pending = false
   },
 
   [types.CLAIM_REWARD_REQUEST] (state, payload) {
     state.error = ''
-    state.isReady = false
+    state.pending = true
   },
 
   [types.CLAIM_REWARD_SUCCESS] (state, payload) {
@@ -163,7 +162,7 @@ const mutations = {
 
   [types.CLAIM_REWARD_FAILURE] (state, payload) {
     handleError(state, payload)
-    state.isReady = true
+    state.pending = false
   }
 }
 
@@ -179,20 +178,9 @@ const actions = {
     console.log(`gameId: ${gameId}`)
     console.log(`privateKey: ${privateKey}`)
     console.log('Fetching symbol...')
-    // return irohaApi.getAccountDetail(privateKey, accountId, {
-    //   accountId: accountId,
-    //   key: 'symbol',
-    //   writer: accountId
-    // })
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        console.log('Starting game')
-        console.log('accountId:', accountId)
-        console.log('gameId:', gameId)
-        console.log('privateKey:', privateKey)
-
-        resolve()
-      }, 500)
+    return irohaApi.getAccountDetail(privateKey, accountId, {
+      accountId: accountId,
+      key: 'symbol'
     })
       .then(response => {
         console.log(`response: ${response}`)

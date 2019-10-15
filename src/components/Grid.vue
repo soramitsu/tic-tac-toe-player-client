@@ -1,6 +1,6 @@
 <template>
   <div class='game-view-grid'>
-    <div class='game-view-cell' v-bind:class="{ pending: !isReady }"
+    <div class='game-view-cell' v-bind:class="{ pending: pending }"
       v-for="(cell, i) in game" v-bind:key="i">
       <cell
         v-bind:id="i"
@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import Cell from './Cell.vue'
 
 export default {
@@ -24,14 +24,14 @@ export default {
 
   data () {
     return {
-      // game: new Array(9).fill().map(s => '')
+      polling: null
     }
   },
 
   computed: {
-    ...mapGetters({
-      game: 'getGame',
-      isReady: 'getIsReady'
+    ...mapState({
+      game: state => state.Default.game,
+      pending: state => state.Default.pending
     })
   },
 
@@ -42,17 +42,30 @@ export default {
 
   methods: {
     makeMove (event) {
-      if (this.isReady) {
+      if (!this.pending) {
         console.log(`Propagating request makeMove(${event})`)
         this.$store.dispatch('makeMove', event)
       } else {
         console.log('Processing previous request; making new moves not possible')
       }
+    },
+
+    pollGameState () {
+      this.polling = setInterval(() => {
+        if (!this.pending) {
+          this.$store.dispatch('fetchGame')
+        }
+      }, 1000)
     }
   },
 
   mounted () {
-    console.log('Grid.vue mounted')
+    console.log('Grid.vue mounted; starting polling Iroha')
+    this.pollGameState()
+  },
+
+  beforeDestroy () {
+    clearInterval(this.polling)
   }
 }
 </script>

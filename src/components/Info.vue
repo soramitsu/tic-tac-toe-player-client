@@ -1,16 +1,18 @@
 <template>
   <div id="game-view-info">
-    {{ text }}
+    {{ statusMsg }}
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex'
 export default {
   props: ['initial'],
-  data () {
-    return {
-      text: this.initial
-    }
+
+  computed: {
+    ...mapState({
+      statusMsg: state => state.Default.statusMsg
+    })
   },
 
   methods: {
